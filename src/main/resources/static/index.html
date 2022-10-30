@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/js/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
+    <link href="/css/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <style>
+        body{
+            background: #d1d5db;
+        }
+
+        .height{
+            height: 100vh;
+        }
+
+        .form{
+            position: relative;
+        }
+
+        .form .fa-search{
+            position: absolute;
+            top:20px;
+            left: 20px;
+            color: #9ca3af;
+        }
+
+        .form span{
+            position: absolute;
+            right: 17px;
+            top: 13px;
+            padding: 2px;
+            border-left: 1px solid #d1d5db;
+        }
+
+        .left-pan{
+            padding-left: 7px;
+        }
+
+        .left-pan i{
+            padding-left: 10px;
+        }
+
+        .form-input{
+            height: 55px;
+            text-indent: 33px;
+            border-radius: 10px;
+        }
+
+        .form-input:focus{
+            box-shadow: none;
+            border:none;
+        }
+    </style>
+    <title>Search Accounts</title>
+    <script>
+        const statesMap = new Map();
+        statesMap.set('AL', 'Alabama');
+        statesMap.set('KY', 'Kentucky');
+        statesMap.set('OH', 'Ohio');
+        statesMap.set('AK', 'Alaska');
+        statesMap.set('LA', 'Louisiana');
+        statesMap.set('OK', 'Oklahoma');
+        statesMap.set('AZ', 'Arizona');
+        statesMap.set('ME', 'Maine');
+        statesMap.set('OR', 'Oregon');
+        statesMap.set('AR', 'Arkansas');
+        statesMap.set('MD', 'Maryland');
+        statesMap.set('PA', 'Pennsylvania');
+        statesMap.set('AS', 'American Samoa');
+        statesMap.set('MA', 'Massachusetts');
+        statesMap.set('PR', 'Puerto Rico');
+        statesMap.set('CA', 'California');
+        statesMap.set('MI', 'Michigan');
+        statesMap.set('RI', 'Rhode Island');
+        statesMap.set('CO', 'Colorado');
+        statesMap.set('MN', 'Minnesota');
+        statesMap.set('SC', 'South Carolina');
+        statesMap.set('CT', 'Connecticut');
+        statesMap.set('MS', 'Mississippi');
+        statesMap.set('SD', 'South Dakota');
+        statesMap.set('DE', 'Delaware');
+        statesMap.set('MO', 'Missouri');
+        statesMap.set('TN', 'Tennessee');
+        statesMap.set('DC', 'District of Columbia');
+        statesMap.set('MT', 'Montana');
+        statesMap.set('TX', 'Texas');
+        statesMap.set('FL', 'Florida');
+        statesMap.set('NE', 'Nebraska');
+        statesMap.set('TT', 'Trust Territories');
+        statesMap.set('GA', 'Georgia');
+        statesMap.set('NV', 'Nevada');
+        statesMap.set('UT', 'Utah');
+        statesMap.set('GU', 'Guam');
+        statesMap.set('NH', 'New Hampshire');
+        statesMap.set('VT', 'Vermont');
+        statesMap.set('HI', 'Hawaii');
+        statesMap.set('NJ', 'New Jersey');
+        statesMap.set('VA', 'Virginia');
+        statesMap.set('ID', 'Idaho');
+        statesMap.set('NM', 'New Mexico');
+        statesMap.set('VI', 'Virgin Islands');
+        statesMap.set('IL', 'Illinois');
+        statesMap.set('NY', 'New York');
+        statesMap.set('WA', 'Washington');
+        statesMap.set('IN', 'Indiana');
+        statesMap.set('NC', 'North Carolina');
+        statesMap.set('WV', 'West Virginia');
+        statesMap.set('IA', 'Iowa');
+        statesMap.set('ND', 'North Dakota');
+        statesMap.set('WI', 'Wisconsin');
+        statesMap.set('KS', 'Kansas');
+        statesMap.set('CM', 'Northern Mariana Islands');
+        statesMap.set('WY', 'Wyoming');
+
+        function search(event) {
+            event = window.event?window.event:event;
+            if(event.keyCode === 13){
+                let term = event.target.value;
+                $('#accounts_container>div').remove();
+
+                fetch('/accounts/search/'+term).then(function(response){
+                    return response.json();
+                }).then(function(myJson){
+                    let fetchedAccounts = myJson.hits.hits.map(h=>h._source);
+                    for(let acc of fetchedAccounts){
+                        let title = acc.firstname + ' ' + acc.lastname + '@' + acc.employer;
+                        let account_number = acc.account_number;
+                        let email = acc.email;
+                        let balance = formatCurrency(acc.balance,{"pattern":"$%s","precision":2,"requiredPrecision":2,"decimalSymbol":".","groupSymbol":",","groupLength":3,"integerRequired":false});
+                        let age = acc.age;
+                        let gender = acc.gender === 'F'?'Female':'Male';
+                        let employer = acc.employer;
+                        let address = acc.address;
+                        let city = acc.city;
+                        let state = statesMap.get(acc.state);
+                        debugger;
+                        let recordHtml = `<div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">${title}</h5>
+                    <div class="d-flex flex-row">
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">Account: </label><label class="col-md-7">${account_number}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-3" style="font-weight:500">Email: </label><label class="col-md-9">${email}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">Balance: </label><label class="col-md-7">${balance}</label>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">Age: </label><label class="col-md-7">${age}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-3" style="font-weight:500">Gender: </label><label class="col-md-9">${gender}</label>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">Employer: </label><label>${employer}</label>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">Address: </label><label class="col-md-7">${address}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-3" style="font-weight:500">City: </label><label class="col-md-9">${city}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="col-md-4" style="font-weight:500">State: </label><label class="col-md-7">${state}</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>`;
+                        $('#accounts_container').append(recordHtml)
+                    }
+                })
+            }
+        }
+
+        function formatCurrency(price, format, showPlus) {
+            var precision = isNaN(format.precision = Math.abs(format.precision)) ? 2 : format.precision;
+            var requiredPrecision = isNaN(format.requiredPrecision = Math.abs(format.requiredPrecision)) ? 2 : format.requiredPrecision;
+
+
+            precision = requiredPrecision;
+
+            var integerRequired = isNaN(format.integerRequired = Math.abs(format.integerRequired)) ? 1 : format.integerRequired;
+
+            var decimalSymbol = format.decimalSymbol == undefined ? ',' : format.decimalSymbol;
+            var groupSymbol = format.groupSymbol == undefined ? '.' : format.groupSymbol;
+            var groupLength = format.groupLength == undefined ? 3 : format.groupLength;
+
+            var s = '';
+
+            if (showPlus == undefined || showPlus == true) {
+                s = price < 0 ? '-' :  showPlus ? '+' : '';
+            } else if (showPlus == false) {
+                s = '';
+            }
+
+            var i = parseInt(price = Math.abs(+price || 0).toFixed(precision)) + '';
+            var pad = i.length < integerRequired ? integerRequired - i.length : 0;
+
+            while (pad) {
+                i = '0' + i; pad--;
+            }
+            j = (j = i.length) > groupLength ? j % groupLength : 0;
+            re = new RegExp('(\\d{' + groupLength + '})(?=\\d)', 'g');
+
+            /**
+             * replace(/-/, 0) is only for fixing Safari bug which appears
+             * when Math.abs(0).toFixed() executed on "0" number.
+             * Result is "0.-0" :(
+             */
+            var r = (j ? i.substr(0, j) + groupSymbol : '') + i.substr(j).replace(re, '$1' + groupSymbol) + (precision ? decimalSymbol + Math.abs(price - i).toFixed(precision).replace(/-/, 0).slice(2) : '');
+            var pattern = '';
+
+            if (format.pattern.indexOf('{sign}') == -1) {
+                pattern = s + format.pattern;
+            } else {
+                pattern = format.pattern.replace('{sign}', s);
+            }
+
+            return pattern.replace('%s', r).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+
+    <div class="row height d-flex justify-content-center align-items-center">
+
+        <div class="col-md-6">
+            <div class="form">
+                <i class="fa fa-search"></i>
+                <input type="text" class="form-control form-input" onkeydown="search(this)" placeholder="Search accounts...">
+<!--                <span class="left-pan"><i class="fa fa-microphone"></i></span>-->
+            </div>
+        </div>
+        <div id="accounts_container" class="col-md-10" style="height:85%">
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
